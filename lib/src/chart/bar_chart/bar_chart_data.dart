@@ -324,6 +324,8 @@ class BarChartRodData with EquatableMixin {
     BorderSide? borderSide,
     BackgroundBarChartRodData? backDrawRodData,
     List<BarChartRodStackItem>? rodStackItems,
+    this.useHatchPattern = false,
+    this.hatchColor,
   })  : fromY = fromY ?? 0,
         color =
             color ?? ((color == null && gradient == null) ? Colors.cyan : null),
@@ -373,6 +375,12 @@ class BarChartRodData with EquatableMixin {
   /// Determines the upward or downward direction
   bool isUpward() => toY >= fromY;
 
+  /// If you want to have a forward hatch pattern, set this value.
+  final bool useHatchPattern;
+
+  /// The color for the forward hatch pattern
+  final Color? hatchColor;
+
   /// Copies current [BarChartRodData] to a new [BarChartRodData],
   /// and replaces provided values.
   BarChartRodData copyWith({
@@ -386,6 +394,8 @@ class BarChartRodData with EquatableMixin {
     BorderSide? borderSide,
     BackgroundBarChartRodData? backDrawRodData,
     List<BarChartRodStackItem>? rodStackItems,
+    bool? useHatchPattern,
+    Color? hatchColor,
   }) {
     return BarChartRodData(
       fromY: fromY ?? this.fromY,
@@ -398,6 +408,8 @@ class BarChartRodData with EquatableMixin {
       borderSide: borderSide ?? this.borderSide,
       backDrawRodData: backDrawRodData ?? this.backDrawRodData,
       rodStackItems: rodStackItems ?? this.rodStackItems,
+      useHatchPattern: useHatchPattern ?? this.useHatchPattern,
+      hatchColor: hatchColor ?? this.hatchColor,
     );
   }
 

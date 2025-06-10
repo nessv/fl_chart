@@ -325,6 +325,15 @@ class BarChartPainter extends AxisChartPainter<BarChartData> {
               _barStrokePaint,
             );
           }
+
+          // draw hatch pattern
+          if (barRod.useHatchPattern) {
+            drawHatchPattern(
+              canvasWrapper,
+              barRRect,
+              hatchColor: barRod.hatchColor,
+            );
+          }
         }
       }
     }
@@ -713,6 +722,65 @@ class BarChartPainter extends AxisChartPainter<BarChartData> {
     }
 
     return null;
+  }
+
+  void drawHatchPattern(
+    CanvasWrapper canvasWrapper,
+    RRect rod, {
+    Color? hatchColor,
+  }) {
+    final canvas = canvasWrapper.canvas;
+    const spacing = 10.0;
+    const overflow = 40.0; // Large enough to overflow edges
+    final paint = Paint()
+      ..color = hatchColor ?? Colors.black
+      ..strokeWidth = 3.0;
+
+    canvas
+      ..save()
+      ..clipRRect(rod);
+
+    final rect = rod.outerRect;
+    final width = rect.width;
+    final height = rect.height;
+
+    // Direction vector for hatch lines (bottom-left to top-right)
+    const dx = 1;
+    const dy = -1;
+
+    for (var i = -height; i < width + height; i += spacing) {
+      // Calculate start point on bottom or left edge
+      double startX;
+      double startY;
+      if (i < 0) {
+        startX = rect.left;
+        startY = rect.bottom +
+            i; // since i < 0, +i is a negative offset up from bottom
+      } else {
+        startX = rect.left + i;
+        startY = rect.bottom;
+      }
+
+      // Calculate end point on top or right edge
+      double endX;
+      double endY;
+      if (i < width) {
+        endX = rect.left + i;
+        endY = rect.top;
+      } else {
+        endX = rect.left + width;
+        endY = rect.top + (i - width);
+      }
+
+      // Extend start and end points beyond edges by 'overflow' along the diagonal
+      final extendedStart =
+          Offset(startX - dx * overflow, startY - dy * overflow);
+      final extendedEnd = Offset(endX + dx * overflow, endY + dy * overflow);
+
+      canvas.drawLine(extendedStart, extendedEnd, paint);
+    }
+
+    canvas.restore();
   }
 }
 
