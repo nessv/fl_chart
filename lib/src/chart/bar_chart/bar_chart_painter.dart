@@ -379,16 +379,8 @@ class BarChartPainter extends AxisChartPainter<BarChartData> {
       textScaler: holder.textScaler,
     )..layout(maxWidth: tooltipData.maxContentWidth);
 
-    /// creating TextPainters to calculate the width and height of the tooltip
     final drawingTextPainter = tp;
 
-    /// biggerWidth
-    /// some texts maybe larger, then we should
-    /// draw the tooltip' width as wide as biggerWidth
-    ///
-    /// sumTextsHeight
-    /// sum up all Texts height, then we should
-    /// draw the tooltip's height as tall as sumTextsHeight
     final textWidth = drawingTextPainter.width;
     final textHeight = drawingTextPainter.height + textsBelowMargin;
 
@@ -406,15 +398,23 @@ class BarChartPainter extends AxisChartPainter<BarChartData> {
     );
 
     final tooltipWidth = textWidth + tooltipData.tooltipPadding.horizontal;
-    final tooltipHeight = textHeight + tooltipData.tooltipPadding.vertical;
+    final tooltipHeightWithoutArrow =
+        textHeight + tooltipData.tooltipPadding.vertical;
 
     final barTopY = min(barToYPixel.dy, barFromYPixel.dy);
     final barBottomY = max(barToYPixel.dy, barFromYPixel.dy);
     final drawTooltipOnTop = tooltipData.direction == TooltipDirection.top ||
         (tooltipData.direction == TooltipDirection.auto &&
             showOnRodData.isUpward());
+    // Arrow size and offset
+    const arrowWidth = 12.0;
+    const arrowHeight = 8.0;
+
     final tooltipTop = drawTooltipOnTop
-        ? barTopY - tooltipHeight - tooltipData.tooltipMargin
+        ? barTopY -
+            tooltipHeightWithoutArrow -
+            tooltipData.tooltipMargin -
+            arrowHeight
         : barBottomY + tooltipData.tooltipMargin;
 
     final tooltipLeft = getTooltipLeft(
@@ -424,13 +424,12 @@ class BarChartPainter extends AxisChartPainter<BarChartData> {
       tooltipData.tooltipHorizontalOffset,
     );
 
-    /// draw the background rect with rounded radius
-    // ignore: omit_local_variable_types
+    // The tooltip rect INCLUDING space for the arrow at bottom
     Rect rect = Rect.fromLTWH(
       tooltipLeft,
       tooltipTop,
       tooltipWidth,
-      tooltipHeight,
+      tooltipHeightWithoutArrow + arrowHeight,
     );
 
     if (tooltipData.fitInsideHorizontally) {
@@ -478,26 +477,46 @@ class BarChartPainter extends AxisChartPainter<BarChartData> {
     }
 
     final radius = Radius.circular(tooltipData.tooltipRoundedRadius);
-    final roundedRect = RRect.fromRectAndCorners(
-      rect,
-      topLeft: radius,
-      topRight: radius,
-      bottomLeft: radius,
-      bottomRight: radius,
+
+    // Create path for rounded rect + arrow pointing down-right from bottom middle
+    final path = Path();
+
+    // Rounded rect minus arrow area (up to bottom - arrowHeight)
+    final rectWithoutArrow = Rect.fromLTWH(
+      rect.left,
+      rect.top,
+      rect.width,
+      rect.height - arrowHeight,
     );
 
-    /// set tooltip's background color for each rod
+    path.addRRect(RRect.fromRectAndRadius(rectWithoutArrow, radius));
+
+    // Calculate arrow base center point at bottom middle of rectWithoutArrow
+    final arrowBaseCenterX = rect.left + rect.width / 2;
+    final arrowBaseY = rectWithoutArrow.bottom;
+
+// Symmetric downward arrow points:
+    final arrowLeft = Offset(arrowBaseCenterX - arrowWidth / 2, arrowBaseY);
+    final arrowRight = Offset(arrowBaseCenterX + arrowWidth / 2, arrowBaseY);
+    final arrowTip = Offset(arrowBaseCenterX, arrowBaseY + arrowHeight);
+
+    path
+      ..moveTo(arrowLeft.dx, arrowLeft.dy)
+      ..lineTo(arrowTip.dx, arrowTip.dy)
+      ..lineTo(arrowRight.dx, arrowRight.dy)
+      ..close();
+
+    // Set background color
     _bgTouchTooltipPaint.color = tooltipData.getTooltipColor(showOnBarGroup);
 
     final rotateAngle = tooltipData.rotateAngle;
     final rectRotationOffset =
         Offset(0, Utils().calculateRotationOffset(rect.size, rotateAngle).dy);
-    final rectDrawOffset = Offset(roundedRect.left, roundedRect.top);
+    final rectDrawOffset = Offset(rect.left, rect.top);
 
     final textRotationOffset =
         Utils().calculateRotationOffset(tp.size, rotateAngle);
 
-    /// draw the texts one by one in below of each other
     final top = tooltipData.tooltipPadding.top;
     final drawOffset = Offset(
       rect.center.dx - (tp.width / 2),
@@ -517,8 +536,8 @@ class BarChartPainter extends AxisChartPainter<BarChartData> {
       angle: rotateAngle,
       drawCallback: () {
         canvasWrapper
-          ..drawRRect(roundedRect, _bgTouchTooltipPaint)
-          ..drawRRect(roundedRect, _borderTouchTooltipPaint)
+          ..drawPath(path, _bgTouchTooltipPaint)
+          ..drawPath(path, _borderTouchTooltipPaint)
           ..drawText(tp, drawOffset);
       },
     );
