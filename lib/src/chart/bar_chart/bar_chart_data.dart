@@ -324,8 +324,7 @@ class BarChartRodData with EquatableMixin {
     BorderSide? borderSide,
     BackgroundBarChartRodData? backDrawRodData,
     List<BarChartRodStackItem>? rodStackItems,
-    this.useHatchPattern = false,
-    this.hatchColor,
+    this.hatchPattern,
   })  : fromY = fromY ?? 0,
         color =
             color ?? ((color == null && gradient == null) ? Colors.cyan : null),
@@ -376,10 +375,7 @@ class BarChartRodData with EquatableMixin {
   bool isUpward() => toY >= fromY;
 
   /// If you want to have a forward hatch pattern, set this value.
-  final bool useHatchPattern;
-
-  /// The color for the forward hatch pattern
-  final Color? hatchColor;
+  final BarRodHatchPattern? hatchPattern;
 
   /// Copies current [BarChartRodData] to a new [BarChartRodData],
   /// and replaces provided values.
@@ -394,8 +390,7 @@ class BarChartRodData with EquatableMixin {
     BorderSide? borderSide,
     BackgroundBarChartRodData? backDrawRodData,
     List<BarChartRodStackItem>? rodStackItems,
-    bool? useHatchPattern,
-    Color? hatchColor,
+    BarRodHatchPattern? hatchPattern,
   }) {
     return BarChartRodData(
       fromY: fromY ?? this.fromY,
@@ -408,8 +403,7 @@ class BarChartRodData with EquatableMixin {
       borderSide: borderSide ?? this.borderSide,
       backDrawRodData: backDrawRodData ?? this.backDrawRodData,
       rodStackItems: rodStackItems ?? this.rodStackItems,
-      useHatchPattern: useHatchPattern ?? this.useHatchPattern,
-      hatchColor: hatchColor ?? this.hatchColor,
+      hatchPattern: hatchPattern ?? this.hatchPattern,
     );
   }
 
@@ -726,6 +720,7 @@ class BarTouchTooltipData with EquatableMixin {
     TooltipDirection? direction,
     double? rotateAngle,
     BorderSide? tooltipBorder,
+    this.tooltipBoxShadow,
   })  : tooltipRoundedRadius = tooltipRoundedRadius ?? 4,
         tooltipPadding = tooltipPadding ??
             const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -782,6 +777,9 @@ class BarTouchTooltipData with EquatableMixin {
   /// Retrieves data for setting background color of the tooltip.
   final GetBarTooltipColor getTooltipColor;
 
+  /// Controls the shadow around the tooltip.
+  final BoxShadow? tooltipBoxShadow;
+
   /// Used for equality check, see [EquatableMixin].
   @override
   List<Object?> get props => [
@@ -797,6 +795,7 @@ class BarTouchTooltipData with EquatableMixin {
         rotateAngle,
         tooltipBorder,
         getTooltipColor,
+        tooltipBoxShadow,
       ];
 }
 
@@ -947,6 +946,28 @@ class BarTouchedSpot extends TouchedSpot with EquatableMixin {
         spot,
         offset,
       ];
+}
+
+/// Represents the hatch pattern style for a bar rod in a bar chart.
+class BarRodHatchPattern with EquatableMixin {
+  /// Creates a [BarRodHatchPattern] with optional [hatchColor], [strokeWidth], and [hatchSpacing].
+  const BarRodHatchPattern({
+    this.hatchColor = Colors.black,
+    this.strokeWidth = 3.0,
+    this.hatchSpacing = 10.0,
+  });
+
+  /// The color of the hatch lines. Defaults to [Colors.black] if not specified.
+  final Color hatchColor;
+
+  /// The width of the hatch lines. Defaults to 3.0 if not specified.
+  final double strokeWidth;
+
+  /// The spacing between hatch lines. Defaults to 10.0 if not specified.
+  final double hatchSpacing;
+
+  @override
+  List<Object?> get props => [hatchColor, strokeWidth, hatchSpacing];
 }
 
 /// It lerps a [BarChartData] to another [BarChartData] (handles animation for updating values)

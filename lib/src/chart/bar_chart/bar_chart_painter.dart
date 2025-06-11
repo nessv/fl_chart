@@ -327,12 +327,8 @@ class BarChartPainter extends AxisChartPainter<BarChartData> {
           }
 
           // draw hatch pattern
-          if (barRod.useHatchPattern) {
-            drawHatchPattern(
-              canvasWrapper,
-              barRRect,
-              hatchColor: barRod.hatchColor,
-            );
+          if (barRod.hatchPattern case final hatchPattern?) {
+            drawHatchPattern(canvasWrapper, barRRect, hatchPattern);
           }
         }
       }
@@ -495,7 +491,7 @@ class BarChartPainter extends AxisChartPainter<BarChartData> {
     final arrowBaseCenterX = rect.left + rect.width / 2;
     final arrowBaseY = rectWithoutArrow.bottom;
 
-// Symmetric downward arrow points:
+    // Symmetric downward arrow points:
     final arrowLeft = Offset(arrowBaseCenterX - arrowWidth / 2, arrowBaseY);
     final arrowRight = Offset(arrowBaseCenterX + arrowWidth / 2, arrowBaseY);
     final arrowTip = Offset(arrowBaseCenterX, arrowBaseY + arrowHeight);
@@ -527,6 +523,30 @@ class BarChartPainter extends AxisChartPainter<BarChartData> {
       _borderTouchTooltipPaint
         ..color = tooltipData.tooltipBorder.color
         ..strokeWidth = tooltipData.tooltipBorder.width;
+    }
+
+    if (tooltipData.tooltipBoxShadow case final shadow?) {
+      final shadowTouchTooltipPaint = Paint()
+        ..color = shadow.color
+        ..maskFilter = MaskFilter.blur(
+          shadow.blurStyle,
+          shadow.blurRadius,
+        );
+
+      final translatedPath = path.shift(shadow.offset);
+
+      canvasWrapper.drawRotated(
+        size: rect.size,
+        rotationOffset: rectRotationOffset,
+        drawOffset: rectDrawOffset,
+        angle: rotateAngle,
+        drawCallback: () {
+          canvasWrapper.drawPath(
+            translatedPath,
+            shadowTouchTooltipPaint,
+          );
+        },
+      );
     }
 
     canvasWrapper.drawRotated(
@@ -745,15 +765,15 @@ class BarChartPainter extends AxisChartPainter<BarChartData> {
 
   void drawHatchPattern(
     CanvasWrapper canvasWrapper,
-    RRect rod, {
-    Color? hatchColor,
-  }) {
+    RRect rod,
+    BarRodHatchPattern hatchPattern,
+  ) {
     final canvas = canvasWrapper.canvas;
-    const spacing = 10.0;
-    const overflow = 40.0; // Large enough to overflow edges
+    final spacing = hatchPattern.hatchSpacing;
+    const overflow = 20.0; // Large enough to overflow edges
     final paint = Paint()
-      ..color = hatchColor ?? Colors.black
-      ..strokeWidth = 3.0;
+      ..color = hatchPattern.hatchColor
+      ..strokeWidth = hatchPattern.strokeWidth;
 
     canvas
       ..save()
