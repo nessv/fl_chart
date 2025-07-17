@@ -887,7 +887,8 @@ class BarChartPainter extends AxisChartPainter<BarChartData> {
   ) {
     final canvas = canvasWrapper.canvas;
     final spacing = hatchPattern.hatchSpacing;
-    const overflow = 20.0; // Large enough to overflow edges
+    const overflow = 20.0; // Extend beyond edges
+
     final paint = Paint()
       ..color = hatchPattern.hatchColor
       ..strokeWidth = hatchPattern.strokeWidth;
@@ -900,40 +901,50 @@ class BarChartPainter extends AxisChartPainter<BarChartData> {
     final width = rect.width;
     final height = rect.height;
 
-    // Direction vector for hatch lines (bottom-left to top-right)
-    const dx = 1;
-    const dy = -1;
+    // Convert to radians
+    final angle = hatchPattern.angleInDegrees * (pi / 180.0);
 
-    for (var i = -height; i < width + height; i += spacing) {
-      // Calculate start point on bottom or left edge
-      double startX;
-      double startY;
-      if (i < 0) {
-        startX = rect.left;
-        startY = rect.bottom +
-            i; // since i < 0, +i is a negative offset up from bottom
-      } else {
-        startX = rect.left + i;
-        startY = rect.bottom;
+    if (angle == 0) {
+      for (var y = rect.top; y <= rect.bottom; y += spacing) {
+        canvas.drawLine(
+          Offset(rect.left - overflow, y),
+          Offset(rect.right + overflow, y),
+          paint,
+        );
       }
+    } else {
+      final sinA = sin(angle);
+      final cosA = cos(angle);
 
-      // Calculate end point on top or right edge
-      double endX;
-      double endY;
-      if (i < width) {
-        endX = rect.left + i;
-        endY = rect.top;
-      } else {
-        endX = rect.left + width;
-        endY = rect.top + (i - width);
+      // Diagonal length (longest possible hatch line needed)
+      final diagonal = sqrt(width * width + height * height) + overflow * 2;
+
+      // Determine the perpendicular direction vector for spacing
+      final stepX = -sinA * spacing;
+      final stepY = cosA * spacing;
+
+      // Start from a point far enough to cover the entire rect
+      final linesCount = (diagonal / spacing).ceil();
+      final centerX = rect.center.dx;
+      final centerY = rect.center.dy;
+
+      for (var i = -linesCount; i < linesCount; i++) {
+        // Move perpendicular to the hatch direction
+        final offsetX = centerX + i * stepX;
+        final offsetY = centerY + i * stepY;
+
+        // Calculate line endpoints (extends in the hatch direction)
+        final start = Offset(
+          offsetX - cosA * diagonal / 2,
+          offsetY - sinA * diagonal / 2,
+        );
+        final end = Offset(
+          offsetX + cosA * diagonal / 2,
+          offsetY + sinA * diagonal / 2,
+        );
+
+        canvas.drawLine(start, end, paint);
       }
-
-      // Extend start and end points beyond edges by 'overflow' along the diagonal
-      final extendedStart =
-          Offset(startX - dx * overflow, startY - dy * overflow);
-      final extendedEnd = Offset(endX + dx * overflow, endY + dy * overflow);
-
-      canvas.drawLine(extendedStart, extendedEnd, paint);
     }
 
     canvas.restore();

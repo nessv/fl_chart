@@ -1041,6 +1041,7 @@ class BarRodHatchPattern with EquatableMixin {
     this.hatchColor = Colors.black,
     this.strokeWidth = 3.0,
     this.hatchSpacing = 10.0,
+    this.angleInDegrees = 0.0,
   });
 
   /// The color of the hatch lines. Defaults to [Colors.black] if not specified.
@@ -1051,6 +1052,9 @@ class BarRodHatchPattern with EquatableMixin {
 
   /// The spacing between hatch lines. Defaults to 10.0 if not specified.
   final double hatchSpacing;
+
+  /// The angle at which the hatch lines are drawn. Defaults to 0.0 (horizontal).
+  final double angleInDegrees;
 
   @override
   List<Object?> get props => [hatchColor, strokeWidth, hatchSpacing];
