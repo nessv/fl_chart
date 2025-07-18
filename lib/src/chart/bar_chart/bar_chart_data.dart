@@ -453,6 +453,7 @@ class BarChartRodData with EquatableMixin {
         ),
         rodStackItems:
             lerpBarChartRodStackList(a.rodStackItems, b.rodStackItems, t),
+        hatchPattern: b.hatchPattern,
       );
 
   /// Used for equality check, see [EquatableMixin].
