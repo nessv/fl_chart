@@ -332,6 +332,27 @@ class BarChartPainter extends AxisChartPainter<BarChartData> {
                 viewSize,
                 holder,
               );
+
+              if (stackItem.hatchPattern case final hatchPattern?) {
+                final stackTop = min(stackFromY, stackToY);
+                final stackBottom = max(stackFromY, stackToY);
+
+                final isTop = i == 0;
+                final isBottom = i == barRod.rodStackItems.length - 1;
+
+                final stackRRect = RRect.fromLTRBAndCorners(
+                  left,
+                  stackTop,
+                  right,
+                  stackBottom,
+                  topLeft: isTop ? barRRect.tlRadius : Radius.zero,
+                  topRight: isTop ? barRRect.trRadius : Radius.zero,
+                  bottomLeft: isBottom ? barRRect.blRadius : Radius.zero,
+                  bottomRight: isBottom ? barRRect.brRadius : Radius.zero,
+                );
+
+                drawHatchPattern(canvasWrapper, stackRRect, hatchPattern);
+              }
             }
           }
 

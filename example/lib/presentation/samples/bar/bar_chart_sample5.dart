@@ -148,6 +148,12 @@ class BarChartSample5State extends State<BarChartSample5> {
     final isTop = value1 > 0;
     final sum = value1 + value2 + value3 + value4;
     final isTouched = touchedIndex == x;
+    const hatchPattern = BarRodHatchPattern(
+      hatchColor: Color(0xff01131A),
+      angleInDegrees: -45,
+      hatchSpacing: 5,
+      strokeWidth: 1.2,
+    );
     return BarChartGroupData(
       x: x,
       groupVertically: true,
@@ -170,7 +176,7 @@ class BarChartSample5State extends State<BarChartSample5> {
               0,
               value1,
               AppColors.contentColorGreen,
-              BorderSide(
+              borderSide: BorderSide(
                 color: Colors.white,
                 width: isTouched ? 2 : 0,
               ),
@@ -179,16 +185,17 @@ class BarChartSample5State extends State<BarChartSample5> {
               value1,
               value1 + value2,
               AppColors.contentColorYellow,
-              BorderSide(
+              borderSide: BorderSide(
                 color: Colors.white,
                 width: isTouched ? 2 : 0,
               ),
+              hatchPattern: hatchPattern,
             ),
             BarChartRodStackItem(
               value1 + value2,
               value1 + value2 + value3,
               AppColors.contentColorPink,
-              BorderSide(
+              borderSide: BorderSide(
                 color: Colors.white,
                 width: isTouched ? 2 : 0,
               ),
@@ -197,10 +204,11 @@ class BarChartSample5State extends State<BarChartSample5> {
               value1 + value2 + value3,
               value1 + value2 + value3 + value4,
               AppColors.contentColorBlue,
-              BorderSide(
+              borderSide: BorderSide(
                 color: Colors.white,
                 width: isTouched ? 2 : 0,
               ),
+              hatchPattern: hatchPattern,
             ),
           ],
         ),
@@ -223,28 +231,28 @@ class BarChartSample5State extends State<BarChartSample5> {
               -value1,
               AppColors.contentColorGreen.withValues(
                   alpha: isTouched ? shadowOpacity * 2 : shadowOpacity),
-              const BorderSide(color: Colors.transparent),
+              borderSide: const BorderSide(color: Colors.transparent),
             ),
             BarChartRodStackItem(
               -value1,
               -(value1 + value2),
               AppColors.contentColorYellow.withValues(
                   alpha: isTouched ? shadowOpacity * 2 : shadowOpacity),
-              const BorderSide(color: Colors.transparent),
+              borderSide: const BorderSide(color: Colors.transparent),
             ),
             BarChartRodStackItem(
               -(value1 + value2),
               -(value1 + value2 + value3),
               AppColors.contentColorPink.withValues(
                   alpha: isTouched ? shadowOpacity * 2 : shadowOpacity),
-              const BorderSide(color: Colors.transparent),
+              borderSide: const BorderSide(color: Colors.transparent),
             ),
             BarChartRodStackItem(
               -(value1 + value2 + value3),
               -(value1 + value2 + value3 + value4),
               AppColors.contentColorBlue.withValues(
                   alpha: isTouched ? shadowOpacity * 2 : shadowOpacity),
-              const BorderSide(color: Colors.transparent),
+              borderSide: const BorderSide(color: Colors.transparent),
             ),
           ],
         ),

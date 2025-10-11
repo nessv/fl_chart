@@ -494,9 +494,10 @@ class BarChartRodStackItem with EquatableMixin {
   BarChartRodStackItem(
     this.fromY,
     this.toY,
-    this.color, [
+    this.color, {
     this.borderSide = Utils.defaultBorderSide,
-  ]);
+    this.hatchPattern,
+  });
 
   /// Renders a Stacked Chart section from [fromY]
   final double fromY;
@@ -510,6 +511,9 @@ class BarChartRodStackItem with EquatableMixin {
   /// Renders border stroke for a Stacked Chart section
   final BorderSide borderSide;
 
+  /// Renders a forward hatch pattern, set this value.
+  final BarRodHatchPattern? hatchPattern;
+
   /// Copies current [BarChartRodStackItem] to a new [BarChartRodStackItem],
   /// and replaces provided values.
   BarChartRodStackItem copyWith({
@@ -517,12 +521,14 @@ class BarChartRodStackItem with EquatableMixin {
     double? toY,
     Color? color,
     BorderSide? borderSide,
+    BarRodHatchPattern? hatchPattern,
   }) =>
       BarChartRodStackItem(
         fromY ?? this.fromY,
         toY ?? this.toY,
         color ?? this.color,
-        borderSide ?? this.borderSide,
+        borderSide: borderSide ?? this.borderSide,
+        hatchPattern: hatchPattern ?? this.hatchPattern,
       );
 
   /// Lerps a [BarChartRodStackItem] based on [t] value, check [Tween.lerp].
@@ -535,7 +541,8 @@ class BarChartRodStackItem with EquatableMixin {
         lerpDouble(a.fromY, b.fromY, t)!,
         lerpDouble(a.toY, b.toY, t)!,
         Color.lerp(a.color, b.color, t)!,
-        BorderSide.lerp(a.borderSide, b.borderSide, t),
+        borderSide: BorderSide.lerp(a.borderSide, b.borderSide, t),
+        hatchPattern: b.hatchPattern,
       );
 
   /// Used for equality check, see [EquatableMixin].
